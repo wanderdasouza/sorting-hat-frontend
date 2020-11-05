@@ -11,7 +11,7 @@
               New System
             </v-btn>
           </template>
-          <v-form ref="form">
+          <v-form>
             <v-card>
               <v-card-title>
                 <span class="headline"> New System</span>
@@ -24,18 +24,19 @@
                         v-model="name"
                         data-cy="nameTextField"
                         label="Name"
-                        :rules="inputRules"
+                        :error-messages="nameErrors"
                         required
+                        @input="$v.name.$touch()"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12">
                       <v-text-field
                         v-model="description"
                         label="Description"
-                        :rules="inputRules"
                         data-cy="descriptionTextField"
                         required
-                        @keydown.enter="createNewSystem()"
+                        :error-messages="descriptionErrors"
+                        @input="$v.description.$touch()"
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -70,12 +71,7 @@
                 <v-btn color="blue darken-1" text @click="cancelDialog()">
                   Close
                 </v-btn>
-                <v-btn
-                  color="blue darken-1"
-                  type="submit"
-                  text
-                  @click="createNewSystem()"
-                >
+                <v-btn color="blue darken-1" text @click="createNewSystem()">
                   Create
                 </v-btn>
               </v-card-actions>
@@ -101,7 +97,12 @@
 <script>
 import axios from 'axios'
 
+import { validationMixin } from 'vuelidate'
+import { required } from 'vuelidate/lib/validators'
+
 export default {
+  mixins: [validationMixin],
+
   async fetch() {
     this.systems = await fetch('http://localhost:8000/sistema').then((res) =>
       res.json()
@@ -109,33 +110,68 @@ export default {
     this.nonFuncReqs = await fetch(
       'http://localhost:8000/non-func-reqs'
     ).then((res) => res.json())
+
+    console.log('Sujeira: ', this.$v.$anyDirty)
+    console.log('Erro:  ', this.$v.$anyError)
   },
+
+  validations: {
+    name: { required },
+    description: { required },
+    checkbox: {
+      checked(val) {
+        return val
+      },
+    },
+  },
+
   data() {
     return {
-      newReq: null,
+      newReq: '',
       systems: [],
       nonFuncReqs: [],
-      name: null,
-      description: null,
+      name: '',
+      description: '',
       dialog: false,
       selected: [],
-      inputRules: [(v) => !!v || 'Minimum length is 3 characters'],
     }
+  },
+
+  computed: {
+    nameErrors() {
+      const errors = []
+      if (!this.$v.name.$dirty) return errors
+      !this.$v.name.required && errors.push('Name is required.')
+      return errors
+    },
+
+    descriptionErrors() {
+      const errors = []
+      if (!this.$v.description.$dirty) return errors
+      !this.$v.description.required && errors.push('Description is required.')
+      return errors
+    },
   },
 
   methods: {
     async createNewSystem() {
-      const response = await axios.post('http://localhost:8000/sistema', {
-        name: this.name,
-        description: this.description,
-        reqIds: this.selected,
-      })
-      this.dialog = false
+      console.log('Sujeira: ', this.$v.$anyDirty)
+      console.log('Erro:  ', this.$v.$anyError)
+      console.log(this.$v.$anyError)
+      console.log('\n')
+      if (!this.$v.$anyError) {
+        const response = await axios.post('http://localhost:8000/sistema', {
+          name: this.name,
+          description: this.description,
+          reqIds: this.selected,
+        })
 
-      this.systems.push(response.data)
-      this.name = null
-      this.description = null
-      this.selected = []
+        this.systems.push(response.data)
+        this.name = ''
+        this.description = ''
+        this.selected = []
+        this.dialog = false
+      }
     },
 
     async createNewRequirement() {
@@ -144,7 +180,7 @@ export default {
       })
       this.nonFuncReqs.push(response.data)
       this.selected.push(response.data.id)
-      this.newReq = null
+      this.newReq = ''
     },
 
     cancelDialog() {
