@@ -85,11 +85,11 @@
       <v-divider class="divisor"></v-divider>
       <strong>My sistems</strong>
       <div class="sistemas">
-        <div v-for="system of systems" :key="system.id" class="sistema">
-          <nuxt-link :to="`/modules/${system.id}`">
+        <div v-for="s of system" :key="s.id" class="sistema">
+          <nuxt-link :to="`/modules/${s.id}`">
             <div class="imagem"></div>
           </nuxt-link>
-          <div class="nomeSistema">{{ system.name }}</div>
+          <div class="nomeSistema">{{ s.name }}</div>
         </div>
       </div>
     </div>
@@ -102,6 +102,9 @@ import axios from 'axios'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 
+import System from '../store/models/system'
+import NonFuncReq from '../store/models/nonFuncReq'
+
 export default {
   mixins: [validationMixin],
 
@@ -112,9 +115,6 @@ export default {
     this.nonFuncReqs = await fetch(
       'http://localhost:8000/non-func-reqs'
     ).then((res) => res.json())
-
-    console.log('Sujeira: ', this.$v.$anyDirty)
-    console.log('Erro:  ', this.$v.$anyError)
   },
 
   validations: {
@@ -140,6 +140,10 @@ export default {
   },
 
   computed: {
+    system: () => System.all(),
+
+    nonfuncReqs: () => NonFuncReq.all(),
+
     nameErrors() {
       const errors = []
       if (!this.$v.name.$dirty) return errors
@@ -157,23 +161,25 @@ export default {
 
   methods: {
     async createNewSystem() {
-      console.log('Sujeira: ', this.$v.$anyDirty)
-      console.log('Erro:  ', this.$v.$anyError)
-      console.log(this.$v.$anyError)
-      console.log('\n')
-      if (!this.$v.$anyError) {
-        const response = await axios.post('http://localhost:8000/sistema', {
-          name: this.name,
-          description: this.description,
-          reqIds: this.selected,
-        })
+      // if (!this.$v.$anyError) {
+      const response = await axios.post('http://localhost:8000/sistema', {
+        name: this.name,
+        description: this.description,
+        reqIds: this.selected,
+      })
 
-        this.systems.push(response.data)
-        this.name = ''
-        this.description = ''
-        this.selected = []
-        this.dialog = false
-      }
+      System.insert({
+        data: {
+          id: response.data.id,
+          name: response.data.name,
+          description: response.data.description,
+        },
+      })
+      this.name = ''
+      this.description = ''
+      this.selected = []
+      this.dialog = false
+      // }
     },
 
     async createNewRequirement() {

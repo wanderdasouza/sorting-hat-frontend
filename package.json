@@ -14,9 +14,12 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.12.2",
+    "@vuex-orm/core": "^0.36.3",
     "core-js": "^3.6.5",
     "nuxt": "^2.14.6",
-    "vuelidate": "^0.7.6"
+    "vue": "^2.6.12",
+    "vuelidate": "^0.7.6",
+    "vuex": "^3.5.1"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^3.1.0",
