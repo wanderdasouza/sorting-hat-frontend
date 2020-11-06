@@ -86,7 +86,9 @@
       <strong>My sistems</strong>
       <div class="sistemas">
         <div v-for="system of systems" :key="system.id" class="sistema">
-          <div class="imagem"></div>
+          <nuxt-link :to="`/modules/${system.id}`">
+            <div class="imagem"></div>
+          </nuxt-link>
           <div class="nomeSistema">{{ system.name }}</div>
         </div>
       </div>
