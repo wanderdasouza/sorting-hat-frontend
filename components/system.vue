@@ -86,7 +86,7 @@
       <strong>My sistems</strong>
       <div class="sistemas">
         <div v-for="s of system" :key="s.id" class="sistema">
-          <nuxt-link :to="`/modules/${s.id}`">
+          <nuxt-link :to="`/system/${s.id}`">
             <div class="imagem"></div>
           </nuxt-link>
           <div class="nomeSistema">{{ s.name }}</div>
@@ -109,9 +109,18 @@ export default {
   mixins: [validationMixin],
 
   async fetch() {
-    this.systems = await fetch('http://localhost:8000/sistema').then((res) =>
+    const response = await fetch('http://localhost:8000/sistema').then((res) =>
       res.json()
     )
+    response.forEach((system) => {
+      System.insert({
+        data: {
+          id: system.id,
+          name: system.name,
+          description: system.description,
+        },
+      })
+    })
     this.nonFuncReqs = await fetch(
       'http://localhost:8000/non-func-reqs'
     ).then((res) => res.json())
@@ -130,7 +139,6 @@ export default {
   data() {
     return {
       newReq: '',
-      systems: [],
       nonFuncReqs: [],
       name: '',
       description: '',
