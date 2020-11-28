@@ -8,13 +8,13 @@
         <v-dialog v-model="dialog" persistent max-width="600px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark v-bind="attrs" x-large v-on="on">
-              New Module
+              New Service
             </v-btn>
           </template>
           <v-form>
             <v-card>
               <v-card-title>
-                <span class="headline"> New Module</span>
+                <span class="headline"> New Service</span>
               </v-card-title>
               <v-card-text>
                 <v-container>
@@ -43,7 +43,7 @@
                 <v-btn color="blue darken-1" text @click="cancelDialog()">
                   Close
                 </v-btn>
-                <v-btn color="blue darken-1" text @click="createNewModule()">
+                <v-btn color="blue darken-1" text @click="createNewService()">
                   Create
                 </v-btn>
               </v-card-actions>
@@ -68,52 +68,52 @@ import axios from 'axios'
 
 export default {
   async fetch() {
-    this.modules = await fetch(
-      'http://localhost:8000/systems/1/modules/communications'
+    const dashLen = 4
+    const gapLen = 1
+
+    this.services = await fetch(
+      `http://localhost:8000/modules/${this.$route.params.id}/services`
     ).then((res) => res.json())
 
-    this.modules.forEach((pai) => {
-      if (pai.moduleInteracting.length > 0) {
-        pai.moduleInteracting.forEach((filho) => {
-          this.links.push({ source: pai.id, target: filho.id })
+    for (const service of this.services) {
+      const com = await fetch(
+        `http://localhost:8000/modules/${this.$route.params.id}/services/${service.id}/communications`
+      ).then((res) => res.json())
+      if (com.length > 0) {
+        com.forEach((c) => {
+          this.links.push({
+            source: service.id,
+            target: c.service_receiver.id,
+            dashed: c.sync,
+          })
         })
       }
-    })
+    }
 
-    const nodes = {
-      nodes: this.modules,
+    const graph = {
+      nodes: this.services,
       links: this.links,
     }
 
-    console.log(nodes)
-
     ForceGraph()(document.getElementById('graph'))
-      .graphData(nodes)
+      .graphData(graph)
       .nodeId('id')
       .onNodeRightClick((node) => {
-        this.$router.push({ path: `/module/${node.id}` })
+        this.$router.push({ path: `/service/${node.id}` })
       })
       .linkDirectionalArrowLength(3)
       .zoom(6)
       .centerAt(50, 40)
       .linkDirectionalArrowRelPos(0.95)
+      .linkLineDash((link) => link.dashed && [dashLen, gapLen])
       .nodeAutoColorBy('group')
       .linkCurvature(0.25)
       .nodeCanvasObject((node, ctx, globalScale) => {
         const label = node.name
         const fontSize = 16 / globalScale
         ctx.font = `${fontSize}px Sans-Serif`
-        const textWidth = ctx.measureText(label).width
-        const bckgDimensions = [textWidth, fontSize].map(
-          (n) => n + fontSize * 0.2
-        ) // some padding
 
         ctx.fillStyle = 'rgba(210, 255, 255, 0.8)'
-        ctx.fillRect(
-          node.x - bckgDimensions[0] / 2,
-          node.y - bckgDimensions[1] / 2,
-          ...bckgDimensions
-        )
 
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
@@ -127,7 +127,7 @@ export default {
       name: null,
       responsibility: null,
       links: [],
-      modules: [],
+      services: [],
       dialog: false,
     }
   },
