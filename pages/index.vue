@@ -191,9 +191,12 @@ export default {
     },
 
     async createNewRequirement() {
-      const response = await axios.post('process.env/systems/non-func-reqs', {
-        req: this.newReq,
-      })
+      const response = await axios.post(
+        `${process.env.API_HOST}/systems/non-func-reqs`,
+        {
+          req: this.newReq,
+        }
+      )
       this.nonFuncReqs.push(response.data)
       this.selected.push(response.data.id)
       this.newReq = ''
