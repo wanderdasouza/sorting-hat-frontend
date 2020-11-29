@@ -72,12 +72,12 @@ export default {
     const gapLen = 1
 
     this.services = await fetch(
-      `http://localhost:8000/modules/${this.$route.params.id}/services`
+      `${process.env.API_HOST}/modules/${this.$route.params.id}/services`
     ).then((res) => res.json())
 
     for (const service of this.services) {
       const com = await fetch(
-        `http://localhost:8000/modules/${this.$route.params.id}/services/${service.id}/communications`
+        `${process.env.API_HOST}/modules/${this.$route.params.id}/services/${service.id}/communications`
       ).then((res) => res.json())
       if (com.length > 0) {
         com.forEach((c) => {
@@ -136,7 +136,7 @@ export default {
     async createNewModule() {
       // if (!this.$v.$anyError) {
       const response = await axios.post(
-        `http://localhost:8000/systems/${this.$route.params.id}/modules`,
+        `${process.env.API_HOST}/systems/${this.$route.params.id}/modules`,
         {
           name: this.name,
           responsibility: this.responsibility,

@@ -69,7 +69,7 @@ import axios from 'axios'
 export default {
   async fetch() {
     this.modules = await fetch(
-      'http://localhost:8000/systems/1/modules/communications'
+      `${process.env.API_HOST}/systems/1/modules/communications`
     ).then((res) => res.json())
 
     this.modules.forEach((pai) => {
@@ -136,7 +136,7 @@ export default {
     async createNewModule() {
       // if (!this.$v.$anyError) {
       const response = await axios.post(
-        `http://localhost:8000/systems/${this.$route.params.id}/modules`,
+        `${process.env.API_HOST}/systems/${this.$route.params.id}/modules`,
         {
           name: this.name,
           responsibility: this.responsibility,

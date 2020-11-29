@@ -109,9 +109,9 @@ export default {
   mixins: [validationMixin],
 
   async fetch() {
-    const response = await fetch('http://localhost:8000/systems').then((res) =>
-      res.json()
-    )
+    const response = await fetch(
+      `${process.env.API_HOST}/systems`
+    ).then((res) => res.json())
     response.forEach((system) => {
       System.insert({
         data: {
@@ -122,7 +122,7 @@ export default {
       })
     })
     this.nonFuncReqs = await fetch(
-      'http://localhost:8000/systems/non-func-reqs'
+      `${process.env.API_HOST}/systems/non-func-reqs`
     ).then((res) => res.json())
   },
 
@@ -170,7 +170,7 @@ export default {
   methods: {
     async createNewSystem() {
       // if (!this.$v.$anyError) {
-      const response = await axios.post('http://localhost:8000/systems', {
+      const response = await axios.post(`${process.env.API_HOST}/systems`, {
         name: this.name,
         description: this.description,
         reqIds: this.selected,
@@ -191,12 +191,9 @@ export default {
     },
 
     async createNewRequirement() {
-      const response = await axios.post(
-        'http://localhost:8000/systems/non-func-reqs',
-        {
-          req: this.newReq,
-        }
-      )
+      const response = await axios.post('process.env/systems/non-func-reqs', {
+        req: this.newReq,
+      })
       this.nonFuncReqs.push(response.data)
       this.selected.push(response.data.id)
       this.newReq = ''
