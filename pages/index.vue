@@ -169,7 +169,7 @@ export default {
 
   methods: {
     async createNewSystem() {
-      console.log(process.env.API_HOST)
+      console.log(`${process.env.API_HOST}/systems`)
       // if (!this.$v.$anyError) {
       const response = await axios.post(`${process.env.API_HOST}/systems`, {
         name: this.name,
