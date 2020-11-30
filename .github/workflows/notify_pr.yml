@@ -17,5 +17,5 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           args: |
             Um novo PR do front foi criado
-            Veja https://github.com/wanderdasouza/sorting-hat-front/pulls/${{ github.event.number }}
+            Veja https://github.com/wanderdasouza/sorting-hat-frontend/pulls/${{ github.event.number }}
 
